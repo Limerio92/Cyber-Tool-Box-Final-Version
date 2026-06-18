@@ -1,0 +1,17 @@
+admin,admin
+admin,password
+root,root
+root,toor
+root,123456
+user,user
+user,password
+guest,guest
+test,test
+pi,raspberry
+ubuntu,ubuntu
+tomcat,tomcat
+oracle,oracle
+postgres,postgres
+msfadmin,msfadmin
+vagrant,vagrant
+sysadmin,sysadmin

@@ -1,0 +1,7 @@
+colorama
+googlesearch-python
+python-nmap
+requests
+paramiko
+scapy
+fpdf2
