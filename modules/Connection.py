@@ -19,7 +19,14 @@ def ssh_connect_single(hostname, username, password):
 
     try:
         # Attempt to connect with the provided username and password
-        ssh_client.connect(hostname, username=username, password=password)
+        ssh_client.connect(
+            hostname, 
+            username=username, 
+            password=password,
+            disabled_algorithms={'pubkeys': []},  # Accept old SSH keys
+            look_for_keys=False,                   # Don't look for local keys
+            allow_agent=False                      # Don't use SSH agent
+        )
         print("[+] Connection successful")
         # Perform tasks here if connection is successful
         ssh_client.close()

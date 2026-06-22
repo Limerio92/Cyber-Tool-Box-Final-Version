@@ -1,22 +1,15 @@
 """
 Copyright© 29/04/2026, *****************************
-Verison : 6.0
-Projet
+Version : 6.0
+Projet - FIXED
 """
 
 import subprocess
 import re
 import scapy.all as scapy
-import csv
-import paramiko
-import requests
-from requests.auth import HTTPBasicAuth
-from fpdf import FPDF
-from fpdf import HTMLMixin
+from fpdf import FPDF, HTMLMixin
 from datetime import datetime
-from colorama import Fore, Back, Style, init
 
-# Definitions of secure and insecure versions of operating systems and services
 SECURE_OS_VERSIONS = {
     "windows": ["windows 10", "windows 11"],
     "linux": ["ubuntu 20.04", "ubuntu 22.04", "debian 10", "debian 11", "rhel 8", "centos 8"],
@@ -52,7 +45,6 @@ INSECURE_VERSIONS = {
     "rdp": ["rdp without nla"],
 }
 
-# Functions to perform scans and analyses
 def scan_os(ip_address):
     nmap_command = ["nmap", "-O", ip_address]
     result = subprocess.run(nmap_command, capture_output=True, text=True)
@@ -111,75 +103,59 @@ def check_service_versions(port_info):
     return insecure_services
 
 def scan_network(ip_range):
-    arp_request = scapy.ARP(pdst=ip_range)
-    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-    arp_request_broadcast = broadcast/arp_request
-    answered_list = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
-    clients_list = [{"ip": element[1].psrc, "mac": element[1].hwsrc} for element in answered_list]
-    return clients_list
-
-def ssh_connect_single(hostname, username, password):
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
-        ssh_client.connect(hostname, username=username, password=password)
-        ssh_client.close()
-        return True
-    except paramiko.AuthenticationException:
-        return False
-    except Exception as e:
-        print(f"Error connecting: {e}")
-        return False
-
-def http_connect_single(url, username, password):
-    try:
-        response = requests.get(url, auth=HTTPBasicAuth(username, password))
-        return response.status_code == 200
-    except requests.exceptions.RequestException as e:
-        print(f"Error connecting: {e}")
-        return False
-
+        arp_request = scapy.ARP(pdst=ip_range)
+        broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
+        arp_request_broadcast = broadcast/arp_request
+        answered_list = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+        clients_list = [{"ip": element[1].psrc, "mac": element[1].hwsrc} for element in answered_list]
+        return clients_list
+    except:
+        return []
 
 class PDF(FPDF, HTMLMixin):
     def header(self):
-        self.set_text_color(255, 0, 0)  # Set text color to red
-        self.set_font("Arial", "B", 20)  # Set font to Arial, bold, size 15
-        self.cell(80)
-        self.cell(30, 10, "Network Security Report", align="C")  # Customize the title
-        self.ln(10)
+        self.set_text_color(0, 0, 0)
+        self.set_font("Arial", "B", 16)
+        self.cell(0, 10, "Network Security Report", 0, 1, "C")
+        self.ln(5)
 
     def footer(self):
         self.set_y(-15)
-        self.set_font("Arial", "I", 8)  # Set font to Arial, italic, size 8
-        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", align="C")
-
-    def header_html(self):
-        self.set_y(10)
-        self.set_font("Arial", "B", 12)
-        self.cell(0, 10, "Network Security Report", 0, 1, "C")
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}/{{nb}}", 0, 0, "C")
 
 def generate_security_report(network_range):
-    output_pdf = "Report_Security_Network_" + datetime.now().strftime('%Y-%m-%d_%H-%M') + ".pdf"
+    import os
+    script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    reports_dir = os.path.join(script_dir, "reports")
+    if not os.path.exists(reports_dir):
+        os.makedirs(reports_dir)
+    output_pdf = os.path.join(reports_dir, "Report_Security_Network_" + datetime.now().strftime('%Y-%m-%d_%H-%M') + ".pdf")
 
     pdf = PDF()
-    pdf.alias_nb_pages()  # Pour utiliser {nb} pour le nombre total de pages
-    # pdf.add_page()
+    pdf.alias_nb_pages()
+    pdf.add_page()
 
     HTML = ""
-    HTML += "<p align='center'>------------------------------</p><ul>"
-    HTML += "<p align='center'>Analysis results</p><ul>"
-    HTML += "<p align='center'>------------------------------</p><ul>"
+    HTML += "<p align='center'>------------------------------</p>"
+    HTML += "<p align='center'>Analysis results</p>"
+    HTML += "<p align='center'>------------------------------</p>"
     HTML += "<p></p>"
     HTML += "<p align='center'><i>This report aims to analyze and detect vulnerabilities in a private network.</i></p>"
     
-    HTML += f"<p><strong>Date:</strong> {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>"
-    HTML += f"<p><strong>Target:</strong> {network_range}</p>"
+    HTML += f"<p><b>Date:</b> {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>"
+    HTML += f"<p><b>Target:</b> {network_range}</p>"
 
-    print("--------------------------------------------------------")
-    print(f">>> [*] Analysis of the network {network_range} / ...")
-    print("--------------------------------------------------------")
+    print("=" * 60)
+    print(f"[*] Analysis of network {network_range}")
+    print("=" * 60)
 
     clients = scan_network(network_range)
+    
+    # Si ARP ne trouve rien, scanner l'IP directement
+    if not clients:
+        clients = [{"ip": network_range, "mac": "Unknown"}]
 
     HTML += "<p></p>"
     HTML += "<p align='center'><i>List of devices:</i></p>"
@@ -190,45 +166,52 @@ def generate_security_report(network_range):
         HTML += f"<tr><td>{ip_address}</td></tr>"
 
     HTML += "</table>"
-    pdf.add_page()
 
     for client in clients:
         ip_address = client["ip"]
-        HTML += f"<h3 style='font-size: 15px;'>Device: {ip_address}</h3>"
-        print(f"[*] Analysis of the device: {ip_address} / ...")
+        HTML += f"<h3>Device: {ip_address}</h3>"
+        print(f"[*] Analysis of device: {ip_address}")
         
-        nmap_os_output = scan_os(ip_address)
-        os_info = parse_nmap_os_output(nmap_os_output)
-        insecure_os = check_os_versions(os_info)
+        try:
+            nmap_os_output = scan_os(ip_address)
+            os_info = parse_nmap_os_output(nmap_os_output)
+            insecure_os = check_os_versions(os_info)
 
-        HTML += "<p style='font-size: 5px;'><strong>Operating System Information:</strong></p><ul>"
-        for info in os_info:
-            HTML += f"<li style='font-size: 2px;'>Operating System: {info['os']}</li>"
-        HTML += "</ul>"
-
-        if insecure_os:
-            HTML += "<p style='font-size: 5px;'><strong>Insecure Operating Systems:</strong></p><ul>"
-            for os in insecure_os:
-                HTML += f"<li style='font-size: 2px;'>Operating System: {os['os']}</li>"
+            HTML += "<p><b>Operating System Information:</b></p><ul>"
+            for info in os_info:
+                HTML += f"<li>Operating System: {info['os']}</li>"
             HTML += "</ul>"
 
-        nmap_ports_output = scan_ports(ip_address)
-        port_info = parse_nmap_output(nmap_ports_output)
-        insecure_services = check_service_versions(port_info)
+            if insecure_os:
+                HTML += "<p><b>Insecure Operating Systems:</b></p><ul>"
+                for os in insecure_os:
+                    HTML += f"<li>Operating System: {os['os']}</li>"
+                HTML += "</ul>"
+        except Exception as e:
+            print(f"[-] Error scanning OS: {e}")
 
-        HTML += "<p style='font-size: 5px;'><strong>Information on open ports:</strong></p><ul>"
-        for info in port_info:
-            HTML += f"<li style='font-size: 2px;'>Port: {info['port']}, Service: {info['service']}, Version: {info['version']}</li>"
-        HTML += "</ul>"
+        try:
+            nmap_ports_output = scan_ports(ip_address)
+            port_info = parse_nmap_output(nmap_ports_output)
+            insecure_services = check_service_versions(port_info)
 
-        if insecure_services:
-            HTML += "<p style='font-size: 5px;'><strong>Insecure Services or Versions Detected:</strong></p><ul>"
-            for svc in insecure_services:
-                HTML += f"<li style='font-size: 2px;'>Port: {svc['port']}, Service: {svc['service']}, Version: {svc['version']}</li>"
+            HTML += "<p><b>Information on open ports:</b></p><ul>"
+            for info in port_info:
+                HTML += f"<li>Port: {info['port']}, Service: {info['service']}, Version: {info['version']}</li>"
             HTML += "</ul>"
+
+            if insecure_services:
+                HTML += "<p><b>Insecure Services or Versions Detected:</b></p><ul>"
+                for svc in insecure_services:
+                    HTML += f"<li>Port: {svc['port']}, Service: {svc['service']}, Version: {svc['version']}</li>"
+                HTML += "</ul>"
+        except Exception as e:
+            print(f"[-] Error scanning ports: {e}")
 
         HTML += "<p>-----------------------------</p>"
 
-    print("--------------------------------------------------------")
+    print("=" * 60)
     pdf.write_html(HTML)
     pdf.output(output_pdf)
+    print(f"[+] Report generated: {output_pdf}")
+    print("=" * 60)
