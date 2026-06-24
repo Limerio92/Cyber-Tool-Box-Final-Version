@@ -1,141 +1,186 @@
 """
-
+Cyber Tool Box v6.0 - Mr Robot Edition
+fsociety inspired design
 """
 
-from colorama import Fore, Back, Style
+from colorama import Fore, Style, init
+import re
 
-# Function to display the menu title
+init(autoreset=True)
+
+G = Fore.LIGHTGREEN_EX
+DG = Fore.GREEN
+R = Fore.LIGHTRED_EX
+W = Fore.LIGHTWHITE_EX
+RS = Style.RESET_ALL
+
+WIDTH = 60
+BORDER = G + "+" + "-" * WIDTH + "+"
+
+def vlen(s):
+    """Visible length without ANSI codes"""
+    return len(re.sub(r'\x1b\[[0-9;]*m', '', s))
+
+def row(content):
+    """Print a row with perfect border alignment"""
+    pad = WIDTH - vlen(content)
+    if pad < 0:
+        pad = 0
+    print(G + "|" + content + " " * pad + G + "|")
+
+def empty():
+    """Print empty bordered row"""
+    print(G + "|" + " " * WIDTH + "|")
+
+def display_menu_title():
+    print("\n")
+    print(G + "=" * (WIDTH + 2))
+    row(W + " >>>>>> fsociety - CYBER TOOL BOX v6.0 <<<<<<".center(WIDTH))
+    row(DG + " Hello, friend...".center(WIDTH))
+    row(DG + " Are you ready to control the world?".center(WIDTH))
+    print(G + "=" * (WIDTH + 2))
+    print()
+
+def display_menu_options():
+    print(BORDER)
+    row(W + " >> MAIN OPERATIONS // CHOOSE YOUR TARGET")
+    print(BORDER)
+    empty()
+    row("  [" + W + "01" + G + "] " + W + "RECONNAISSANCE    " + DG + " :: Identify your target")
+    row("  [" + W + "02" + G + "] " + W + "VULNERABILITIES   " + DG + " :: Find their weaknesses")
+    row("  [" + W + "03" + G + "] " + W + "PASSWORD ATTACKS  " + DG + " :: Crack their defenses")
+    row("  [" + W + "04" + G + "] " + W + "AUTHENTICATION    " + DG + " :: Bypass the gates")
+    row("  [" + W + "05" + G + "] " + W + "EXPLOITATION      " + DG + " :: Extract their secrets")
+    row("  [" + W + "06" + G + "] " + W + "POST-INFILTRATION " + DG + " :: Establish persistence")
+    row("  [" + W + "07" + G + "] " + W + "GENERATE REPORT   " + DG + " :: Document the breach")
+    empty()
+    print(BORDER)
+    row("  [" + R + "99" + G + "] " + W + "TERMINATE         " + DG + " :: Exit the session")
+    print(BORDER)
+    print()
+    print(DG + "  > Control is an illusion.")
+    print()
+
+def display_menu_optionScan():
+    print("\n")
+    print(BORDER)
+    row(W + " >> RECONNAISSANCE // GATHERING INTEL")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "Network Scan      " + DG + " :: Discover targets")
+    row("  [" + W + "B" + G + "]  " + W + "Port Scan         " + DG + " :: Identify open services")
+    row("  [" + W + "C" + G + "]  " + W + "Custom Range      " + DG + " :: Specific port targeting")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > The system is rigged. Time to expose it.")
+    print()
+
+def display_menu_exploit():
+    print("\n")
+    print(BORDER)
+    row(W + " >> THREAT INTELLIGENCE // FIND THE GAPS")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "Search Exploits   " + DG + " :: Find known CVEs")
+    row("  [" + W + "B" + G + "]  " + W + "Protocol Analysis " + DG + " :: Find weak protocols")
+    row("  [" + W + "C" + G + "]  " + W + "OS Analysis       " + DG + " :: Find outdated systems")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > Everyone has weaknesses. Time to find them.")
+    print()
+
+def display_menu_password():
+    print("\n")
+    print(BORDER)
+    row(W + " >> PASSWORD WARFARE // BREAK THE LOCKS")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "Test Single       " + DG + " :: Evaluate password")
+    row("  [" + W + "B" + G + "]  " + W + "Bulk Analysis     " + DG + " :: Test from CSV file")
+    row("  [" + W + "C" + G + "]  " + W + "Add to Vault      " + DG + " :: Save new credentials")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > Passwords are illusions. Time to shatter them.")
+    print()
+
+def display_menu_authentication():
+    print("\n")
+    print(BORDER)
+    row(W + " >> ACCESS BREACH // BYPASS THE GATES")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "SSH Single        " + DG + " :: Test SSH credential")
+    row("  [" + W + "B" + G + "]  " + W + "SSH Brute Force   " + DG + " :: Mass SSH attack")
+    row("  [" + W + "C" + G + "]  " + W + "HTTP Single       " + DG + " :: Test HTTP credential")
+    row("  [" + W + "D" + G + "]  " + W + "HTTP Brute Force  " + DG + " :: Mass HTTP attack")
+    row("  [" + W + "E" + G + "]  " + W + "Add Credentials   " + DG + " :: Save to database")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > Authentication is the first lie.")
+    print()
+
+def display_menu_exploit_vuln():
+    print("\n")
+    print(BORDER)
+    row(W + " >> EXTRACTION // GET WHAT'S YOURS")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "Extract SSH Keys  " + DG + " :: Get auth keys")
+    row("  [" + W + "B" + G + "]  " + W + "Extract Certs     " + DG + " :: Harvest certificates")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > Steal what they hide. Expose what they fear.")
+    print()
+
+def display_menu_post_exploit():
+    print("\n")
+    print(BORDER)
+    row(W + " >> DOMAIN CONTROL // OWN THE NETWORK")
+    print(BORDER)
+    empty()
+    row("  [" + W + "A" + G + "]  " + W + "AD Enumeration    " + DG + " :: Extract domain info")
+    empty()
+    print(BORDER)
+    row("  [" + R + "Z" + G + "]  " + W + "RETURN            " + DG + " :: Back to main menu")
+    print(BORDER)
+    print(DG + "  > Walk through their networks.")
+    print()
+
+# Legacy function names (used by cyber-tool-box.py)
 def Display_menu_title():
-    displayInfo = rf"""{Fore.RED} 
-___________           .__ __________              
-\__    ___/___   ____ |  |\______   \ _______  ___
-  |    | /  _ \ /  _ \|  | |    |  _//  _ \  \/  /
-  |    |(  <_> |  <_> )  |_|    |   (  <_> >    < 
-  |____| \____/ \____/|____/______  /\____/__/\_ \
-                                  \/            \/
+    display_menu_title()
 
-{Style.RESET_ALL}{Fore.YELLOW} ______  ______  _______ ______  ______  ______  ______  ______  ______ 
-|______||______||_______|______||______||______||______||______||______|
-
-{Style.RESET_ALL}{Fore.GREEN}______               ______              ___             ___
-|  ___|              | ___ \             | |             | |            
-| |_     ___   _ __  | |_/ /  ___  _ __  | |_   ___  ___ | |_           
-|  _|   / _ \ | '__| |  __/  / _ \| '_ \ | __| / _ \/ __|| __|          
-| |    | (_) || |    | |    |  __/| | | || |_ |  __/\__ \| |_           
-\_|     \___/ |_|    \_|     \___||_| |_| \__| \___||___/ \__|   
-
-{Style.RESET_ALL}{Fore.CYAN}
- version 6.0{Style.RESET_ALL}
-
- ************************************                                                                 
-    """
-    print(displayInfo)
-
-# Function to display the main menu options
 def Display_menu_options():
-    # Construct the string for the main menu options
-    displayInfo = f"""
-    {Fore.GREEN}[ 1 ]{Style.RESET_ALL}  - Scanning 
-    {Fore.GREEN}[ 2 ]{Style.RESET_ALL}  - Detection Vulnerabilities 
-    {Fore.GREEN}[ 3 ]{Style.RESET_ALL}  - Security Analysis
-    {Fore.GREEN}[ 4 ]{Style.RESET_ALL}  - Authentication Password Analysis
-    {Fore.GREEN}[ 5 ]{Style.RESET_ALL}  - Exploitation of Vulnerabilities
-    {Fore.GREEN}[ 6 ]{Style.RESET_ALL}  - Post Exploitation
-    {Fore.GREEN}[ 7 ]{Style.RESET_ALL}  - Report Creation
+    display_menu_options()
 
-    {Fore.YELLOW}[ 99 ]{Style.RESET_ALL} - Exit program
-    """
-    # Display the main menu options
-    print(displayInfo)
-
-# Function to display the scanning submenu options
 def Display_menu_optionScan():
-    # Construct the string for the scanning submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 1 ] - Scanning{Style.RESET_ALL}
+    display_menu_optionScan()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Network / OS Scan
-        {Fore.BLUE}[ b ]{Style.RESET_ALL} - Port Scan (21 - 433)
-        {Fore.BLUE}[ c ]{Style.RESET_ALL} - Custom Port Scan
-        
-        {Fore.RED}z{Style.RESET_ALL} - Go back
-  """
-    # Display the scanning submenu options
-    print(displayInfo)
-
-# Function to display the vulnerabilities submenu options
 def Display_menu_exploit():
-    # Construct the string for the vulnerabilities submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 2 ] - Vulnerabilities{Style.RESET_ALL}
+    display_menu_exploit()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Search for vulnerabilities and exploits on a service
-        {Fore.BLUE}[ b ]{Style.RESET_ALL} - Search for vulnerabilities on a protocol
-        {Fore.BLUE}[ c ]{Style.RESET_ALL} - Search for vulnerabilities on an OS
-        
-        {Fore.RED}[ z ]{Style.RESET_ALL} - Go back
-  """
-    # Display the vulnerabilities submenu options
-    print(displayInfo)
-
-# Function to display the password testing submenu options
 def Display_menu_password():
-    # Construct the string for the password testing submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 3 ] - Test Password{Style.RESET_ALL}
+    display_menu_password()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Test password
-        {Fore.BLUE}[ b ]{Style.RESET_ALL} - CSV password list
-        {Fore.BLUE}[ c ]{Style.RESET_ALL} - Add line to CSV file
-
-        {Fore.RED}[ z ]{Style.RESET_ALL} - Go back
- """
-    # Display the password testing submenu options
-    print(displayInfo)
-
-# Function to display the authentication submenu options
 def Display_menu_authentication():
-    # Construct the string for the authentication submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 4 ] - Authentication{Style.RESET_ALL}
+    display_menu_authentication()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Simple SSH Authentication
-        {Fore.BLUE}[ b ]{Style.RESET_ALL} - Multi-Factor SSH Authentication
-        {Fore.BLUE}[ c ]{Style.RESET_ALL} - Simple HTTP Authentication
-        {Fore.BLUE}[ d ]{Style.RESET_ALL} - Multi-Factor HTTP Authentication
-        {Fore.BLUE}[ e ]{Style.RESET_ALL} - Add line to CSV file
-        
-        {Fore.RED}[ z ]{Style.RESET_ALL} - Go back
- """
-    # Display the authentication submenu options
-    print(displayInfo)
-
-# Function to display the exploitation vulnerabilities submenu options
 def Display_menu_exploit_vuln():
-    # Construct the string for the exploitation vulnerabilities submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 5 ] - Exploitation Vulnerabilities{Style.RESET_ALL}
+    display_menu_exploit_vuln()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Retrieve authentication keys
-        {Fore.BLUE}[ b ]{Style.RESET_ALL} - Retrieve certificates
-
-        {Fore.RED}[ z ]{Style.RESET_ALL} - Go back
- """
-    # Display the exploitation vulnerabilities submenu options
-    print(displayInfo)
-
-# Function to display the post exploitation submenu options
 def Display_menu_post_exploit():
-    # Construct the string for the post exploitation submenu options
-    displayInfo = f"""
-  {Fore.CYAN}[ 6 ] - Post Exploitation{Style.RESET_ALL}
+    display_menu_post_exploit()
 
-        {Fore.BLUE}[ a ]{Style.RESET_ALL} - Detect an AD service and retrieve a CSV file of the domain's users and machine tree
-
-        {Fore.RED}[ z ]{Style.RESET_ALL} - Go back
- """
-    # Display the post exploitation submenu options
-    print(displayInfo)
 if __name__ == "__main__":
-    Display_menu_title()
-    Display_menu_options()
+    display_menu_title()
+    display_menu_options()
