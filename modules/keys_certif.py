@@ -6,6 +6,7 @@ Projet
 
 import paramiko
 import csv
+import os
 
 # Function to execute a command on a remote machine via SSH
 def execute_ssh_command(ip, username, password, command):
@@ -73,7 +74,7 @@ def scan_ssh_keys_linux(ip, username, password):
     
     result = execute_ssh_command(ip, username, password, command)
     
-    csv_output_file = "modules/ssh_keys_linux.csv"
+    csv_output_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ssh_keys_linux.csv")
     with open(csv_output_file, mode="w", newline='', encoding="utf-8") as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(["SSH File"])
@@ -105,12 +106,12 @@ def scan_certificates_windows(ip, username, password):
 
 # Function to scan personal certificates on Linux/macOS
 def scan_certificates_linux(ip, username, password):
-    command = "security find-identity -v -p codesigning"  # For macOS
+    command = "find /etc/ssl/certs -name '*.pem' -o -name '*.crt' 2>/dev/null"
     # For Linux, use appropriate commands
     
     result = execute_ssh_command(ip, username, password, command)
     
-    csv_output_file = "modules/certificates_linux.csv"
+    csv_output_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "certificates_linux.csv")
     with open(csv_output_file, mode="w", newline='', encoding="utf-8") as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(["Personal Certificates"])
