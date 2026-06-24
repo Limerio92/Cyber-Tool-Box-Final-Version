@@ -5,6 +5,8 @@ Projet
 """
 
 import os
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 from affichage_menu import Display_menu_title, Display_menu_options, Display_menu_optionScan, Display_menu_exploit, Display_menu_password, Display_menu_authentication, Display_menu_exploit_vuln, Display_menu_post_exploit
 from colorama import init
 
@@ -131,7 +133,7 @@ if __name__ == "__main__":
 
                 if subOption == 'b':  # If the user chooses to test passwords from a CSV list
                     try:
-                        csv_file_path = os.path.join("modules", "words_keys.csv")
+                        csv_file_path = os.path.join(BASE_DIR, "modules", "words_keys.csv")
                         results = evaluate_csv_passwords(csv_file_path)
                         for login, password, difficulty in results:
                             print(f"Login: {login}, Password: {password}, Difficulty: {difficulty}")
@@ -145,7 +147,7 @@ if __name__ == "__main__":
                         new_username = input("Enter the new username/login : ")
                         new_password_pass = input("Enter the new password : ")
                         new_line_password = [new_username, new_password_pass]
-                        name_file_csv = os.path.join("modules", "words_keys.csv")
+                        name_file_csv = os.path.join(BASE_DIR, "modules", "words_keys.csv")
                         add_line_to_csv_passwords(name_file_csv, new_line_password)
                         print("[+] Password added to CSV")
                     except Exception as e:
@@ -172,7 +174,7 @@ if __name__ == "__main__":
                 if subOption == 'b':  # If the user chooses multi-factor SSH authentication
                     try:
                         host_connection_ssh_m = input("Enter the IP of the machine you want to connect to: ")
-                        file_authen = os.path.join("modules", "logins_authen.csv")
+                        file_authen = os.path.join(BASE_DIR, "modules", "logins_authen.csv")
                         ssh_connect_multiple(host_connection_ssh_m, file_authen)
                     except FileNotFoundError:
                         print("[-] CSV file not found. Create modules/logins_authen.csv first.")
@@ -191,7 +193,7 @@ if __name__ == "__main__":
                 if subOption == 'd':  # If the user chooses multi-factor HTTP authentication
                     try:
                         url_connection_ssh_m = input("Enter the IP of the machine you want to connect to: ")
-                        file_authen = os.path.join("modules", "logins_authen.csv")
+                        file_authen = os.path.join(BASE_DIR, "modules", "logins_authen.csv")
                         http_connect_multiple(url_connection_ssh_m, file_authen)
                     except FileNotFoundError:
                         print("[-] CSV file not found. Create modules/logins_authen.csv first.")
@@ -203,7 +205,7 @@ if __name__ == "__main__":
                         new_login_authen = input("Enter the new login : ")
                         new_password_authen = input("Enter the new password : ")
                         new_line_authen = [new_login_authen, new_password_authen]
-                        name_file2_csv = os.path.join("modules", "logins_authen.csv")
+                        name_file2_csv = os.path.join(BASE_DIR, "modules", "logins_authen.csv")
                         add_line_csv_authen(name_file2_csv, new_line_authen)
                         print("[+] Credentials added to CSV")
                     except Exception as e:

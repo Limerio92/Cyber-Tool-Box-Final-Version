@@ -119,10 +119,26 @@ def scan(ip):
     arp_request = scapy.ARP(pdst=ip)
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
     arp_request_broadcast = broadcast/arp_request
-    answered_list = scapy.srp(arp_request_broadcast, timeout=1, verbose=False)[0]
+
+    # Selectionne automatiquement l'interface reliee au reseau cible
+    target_prefix = ".".join(ip.split(".")[:3])
+    selected_iface = None
+    try:
+        for iface in scapy.get_working_ifaces():
+            if iface.ip and iface.ip.startswith(target_prefix):
+                selected_iface = iface
+                break
+    except Exception:
+        selected_iface = None
+
+    if selected_iface:
+        answered_list = scapy.srp(arp_request_broadcast, timeout=2,
+                                  verbose=False, iface=selected_iface)[0]
+    else:
+        answered_list = scapy.srp(arp_request_broadcast, timeout=2,
+                                  verbose=False)[0]
 
     clients_list = []
-
     for element in answered_list:
         client_dict = {"ip": element[1].psrc, "mac": element[1].hwsrc}
         clients_list.append(client_dict)

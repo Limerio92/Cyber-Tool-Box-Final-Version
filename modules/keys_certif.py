@@ -12,16 +12,25 @@ import os
 def execute_ssh_command(ip, username, password, command):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    
     try:
-        client.connect(ip, username=username, password=password)
+        client.connect(
+            ip,
+            username=username,
+            password=password,
+            look_for_keys=False,
+            allow_agent=False,
+            timeout=10,
+            # Force la compatibilite avec les vieux serveurs (Metasploitable)
+            # en desactivant les variantes sha2, ce qui laisse ssh-rsa disponible
+            disabled_algorithms={
+                'pubkeys': ['rsa-sha2-512', 'rsa-sha2-256']
+            }
+        )
         stdin, stdout, stderr = client.exec_command(command)
-        output = stdout.read().decode("utf-8")
-        error = stderr.read().decode("utf-8")
-        
+        output = stdout.read().decode("utf-8", errors="replace")
+        error = stderr.read().decode("utf-8", errors="replace")
         if error:
             print(f"Error executing command: {error}")
-        
         return output
     finally:
         client.close()

@@ -4,42 +4,61 @@ Verison : 6.0
 Projet
 """
 
-# Import the search function from the googlesearch library
-from googlesearch import search  
+import requests
 
-# Define a function to search for exploits related to a service
+
 def search_exploit(service, html_render=False):
-
-    # Create the search query by concatenating the service with the keywords "exploit vuln"
-    query = service + " exploit vuln"
-    
-    # Perform the Google search with the specified query
-    res = search(query, num_results=10, lang="en")
-
-    # Initialize an empty string to store the information to display
+    """
+    Recherche des CVE liees a un service via l'API officielle NVD (NIST).
+    Endpoint : https://services.nvd.nist.gov/rest/json/cves/2.0/
+    Aucune cle requise (mais ~6s de delai sans cle a cause du rate-limit).
+    Garde la meme signature que la version precedente.
+    """
+    spacing = "<br>" if html_render else "\n"
     display_info = ""
 
-    # Determine the spacing character based on HTML rendering
-    spacing = "<br>" if html_render else "\n"
-
-    # Initialize an empty list to store the links of search results
-    links = []
-
-    # Iterate through all search results
-    for l in res:
-        # Add each link to the list of links
-        links.append(l)
-    
-    # Add header information if rendering is not HTML
     if not html_render:
-        display_info += f"\n\n===================================\n"
-        display_info += f" Exploits related to " + service
-        display_info += f"\n===================================\n\n"
+        display_info += "\n\n===================================\n"
+        display_info += " CVE related to " + service
+        display_info += "\n===================================\n\n"
 
-    # Iterate through all links in the list
-    for link in links:
-        # Add each link followed by the appropriate spacing to the display string
-        display_info += f"{link}{spacing}"
+    try:
+        url = "https://services.nvd.nist.gov/rest/json/cves/2.0/"
+        params = {"keywordSearch": service, "resultsPerPage": 10}
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
 
-    # Return the string containing the links of search results
+        vulnerabilities = data.get("vulnerabilities", [])
+
+        if not vulnerabilities:
+            display_info += f"No CVE found for '{service}'.{spacing}"
+            return display_info
+
+        for item in vulnerabilities:
+            cve = item.get("cve", {})
+            cve_id = cve.get("id", "N/A")
+
+            # Description en anglais
+            summary = "No description available."
+            for desc in cve.get("descriptions", []):
+                if desc.get("lang") == "en":
+                    summary = desc.get("value", summary)
+                    break
+            if len(summary) > 200:
+                summary = summary[:200] + "..."
+
+            # Score CVSS (on prend v3.1 si dispo, sinon v2)
+            score = "N/A"
+            metrics = cve.get("metrics", {})
+            if "cvssMetricV31" in metrics:
+                score = metrics["cvssMetricV31"][0]["cvssData"]["baseScore"]
+            elif "cvssMetricV2" in metrics:
+                score = metrics["cvssMetricV2"][0]["cvssData"]["baseScore"]
+
+            display_info += f"[{cve_id}] (CVSS: {score}){spacing}{summary}{spacing}{spacing}"
+
+    except requests.exceptions.RequestException as e:
+        display_info += f"Error contacting NVD database: {e}{spacing}"
+
     return display_info
