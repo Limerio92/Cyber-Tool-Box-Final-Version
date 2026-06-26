@@ -1,7 +1,6 @@
 """
-Copyright© 29/04/2026, *****************************
-Verison : 6.0
-Projet
+Cyber Tool Box v6.0 - Mr Robot Edition
+fsociety inspired design
 """
 
 import subprocess

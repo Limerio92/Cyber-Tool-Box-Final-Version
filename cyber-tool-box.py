@@ -1,10 +1,9 @@
 """
-Copyright© 18/05/2026, *****************************
-Verison : 6.0
-Projet
+Cyber Tool Box v6.0 - Mr Robot Edition
+fsociety inspired design
 """
 
-import os
+
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 from affichage_menu import Display_menu_title, Display_menu_options, Display_menu_optionScan, Display_menu_exploit, Display_menu_password, Display_menu_authentication, Display_menu_exploit_vuln, Display_menu_post_exploit

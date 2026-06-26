@@ -1,11 +1,11 @@
 """
-Copyright© 29/04/2026, *****************************
-Verison : 6.0
-Projet
+Cyber Tool Box v6.0 - Mr Robot Edition
+fsociety inspired design
 """
 
 import subprocess
 import re
+import socket
 import scapy.all as scapy
 
 # List of secure and insecure operating systems
@@ -86,7 +86,7 @@ def scan_addressing(target_ip):
 
         for device in scanned_devices:
             ip_address = device["ip"]
-            print(f"\nIP Address: {ip_address}")
+            print(f"\nIP Address: {ip_address} | Hostname: {device.get('hostname', 'Unknown')}")
             
             try:
                 nmap_output = scan_os(ip_address)
@@ -140,6 +140,12 @@ def scan(ip):
 
     clients_list = []
     for element in answered_list:
-        client_dict = {"ip": element[1].psrc, "mac": element[1].hwsrc}
+        ip_addr = element[1].psrc
+        mac_addr = element[1].hwsrc
+        try:
+            hostname = socket.gethostbyaddr(ip_addr)[0]
+        except:
+            hostname = "Unknown"
+        client_dict = {"ip": ip_addr, "mac": mac_addr, "hostname": hostname}
         clients_list.append(client_dict)
     return clients_list
